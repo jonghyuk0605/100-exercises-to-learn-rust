@@ -1,21 +1,26 @@
-// TODO: implement a multi-threaded version of the `sum` function
-//  using `spawn` and `join`.
-//  Given a vector of integers, split the vector into two halves and
-//  sum each half in a separate thread.
-
-// Caveat: We can't test *how* the function is implemented,
-// we can only verify that it produces the correct result.
-// You _could_ pass this test by just returning `v.iter().sum()`,
-// but that would defeat the purpose of the exercise.
-//
-// Hint: you won't be able to get the spawned threads to _borrow_
-// slices of the vector directly. You'll need to allocate new
-// vectors for each half of the original vector. We'll see why
-// this is necessary in the next exercise.
 use std::thread;
 
 pub fn sum(v: Vec<i32>) -> i32 {
-    todo!()
+    // Official solution suggests to use split_at function of vector
+    let (mut v_first, mut v_second): (Vec<i32>, Vec<i32>) = (Vec::new(), Vec::new());
+    for x in v {
+        if v_first.len() <= v_second.len() {
+            v_first.push(x);
+        }
+        else {
+            v_second.push(x);
+        }
+    }
+
+    let handle_first:thread::JoinHandle<i32>  = thread::spawn(move || {
+        v_first.iter().sum()
+    });
+
+    let handle_second:thread::JoinHandle<i32> = thread::spawn(move || {
+        v_second.iter().sum()
+    });
+
+    handle_first.join().unwrap() + handle_second.join().unwrap()
 }
 
 #[cfg(test)]
